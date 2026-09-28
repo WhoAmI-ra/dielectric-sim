@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>What happens inside the capacitor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{--bg:#fff;--fg:#1f1f1e;--mut:#6b6a66;--card:#f4f2ec;--diel:#dcebf9;--pl:#8a8880;--o:#D85A30;--t:#1D9E75;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1b1a;--fg:#eeece6;--mut:#a3a19a;--card:#262624;--diel:#1f3a55;--pl:#b4b2a9}}
+:root[data-theme="dark"]{--bg:#1b1b1a;--fg:#eeece6;--mut:#a3a19a;--card:#262624;--diel:#1f3a55;--pl:#b4b2a9}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0 auto;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;padding:14px;max-width:980px}
+h1{font-size:20px;font-weight:500;margin:0 0 4px}p.s{color:var(--mut);margin:0 0 10px;font-size:14px}
+svg{width:100%;height:auto;display:block;background:var(--card);border-radius:12px}
+svg text{fill:var(--fg);font-family:inherit}
+.ctl{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:10px 0}
+.ctl label,.tg label{background:var(--card);padding:8px 12px;border-radius:10px;font-size:14px;display:block}
+.ctl input[type=range]{width:100%}
+.tg{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.tg label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.out{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}
+.out div{background:var(--card);border-radius:10px;padding:8px 12px;font-size:14px}
+.out b{display:block;font-size:17px;font-weight:500}.out small{color:var(--mut)}
+@media(prefers-reduced-motion:no-preference){.fl{stroke-dasharray:9 6;animation:d .8s linear infinite}.up{animation-direction:reverse}}
+@keyframes d{to{stroke-dashoffset:-15}}
+</style></head><body>
+<h1>What happens inside the capacitor</h1>
+<p class="s">Orange arrow: field from the plates. Teal arrow: opposing field from the induced charge. Black arrow: the net field left over.</p>
+<svg id="s" viewBox="0 0 720 390" role="img" aria-label="Capacitor with dielectric showing field arrows and induced charge"></svg>
+<div class="tg">
+<label><input type="checkbox" id="t0" checked> Plate field E₀</label>
+<label><input type="checkbox" id="t1" checked> Induced field Eᵢ</label>
+<label><input type="checkbox" id="t2" checked> Net field E</label>
+<label><input type="checkbox" id="t3" checked> Molecules</label>
+</div>
+<div class="ctl">
+<label>Dielectric constant κ = <b id="kv"></b><input id="k" type="range" min="1" max="10" step="0.1" value="5"></label>
+<label>Field in dielectric E = <b id="ev"></b> MV/m<input id="e" type="range" min="0.5" max="3" step="0.1" value="1.5"></label>
+<label>Thickness d = <b id="dv"></b> mm<input id="d" type="range" min="1" max="10" step="0.5" value="4"></label>
+</div>
+<div class="out" id="o"></div>
+<script>
+var NS="http://www.w3.org/2000/svg",svg=document.getElementById("s"),EPS=8.854e-12;
+function mk(t,a,p){var n=document.createElementNS(NS,t);for(var k in a)n.setAttribute(k,a[k]);(p||svg).appendChild(n);return n}
+var defs=mk("defs",{});
+[["mo","#D85A30"],["mt","#1D9E75"],["mk","#888780"]].forEach(function(m){var mm=mk("marker",{id:m[0],viewBox:"0 0 10 10",refX:8,refY:5,markerWidth:5,markerHeight:5,orient:"auto"},defs);mk("path",{d:"M0 0L10 5L0 10z",fill:m[1]},mm)});
+var X0=30,X1=470,YT=40,YB=340;
+mk("rect",{x:X0,y:YT,width:X1-X0,height:YB-YT,fill:"var(--diel)"});
+mk("rect",{x:X0,y:YT-10,width:X1-X0,height:10,fill:"var(--pl)"});
+mk("rect",{x:X0,y:YB,width:X1-X0,height:10,fill:"var(--pl)"});
+function row(y,ch,n){var r=[];for(var i=0;i<n;i++){var t=mk("text",{x:X0+20+i*(X1-X0-40)/(n-1),y:y,"text-anchor":"middle","font-size":15,"font-weight":500});t.textContent=ch;r.push(t)}return r}
+var N=11;row(YT-16,"+",N);row(YB+28,"\u2212",N);
+var bt=row(YT+18,"\u2212",N),bb=row(YB-8,"+",N);
+var gM=mk("g",{}),dip=[],base=[],seed=7;
+function rnd(){seed=(seed*9301+49297)%233280;return seed/233280}
+for(var r=0;r<4;r++)for(var c=0;c<4;c++){
+var g=mk("g",{},gM);g._c=[310+c*50,YT+85+r*50];
+mk("ellipse",{rx:7,ry:17,fill:"none",stroke:"var(--mut)","stroke-width":1},g);
+var m=mk("text",{y:-6,"text-anchor":"middle","font-size":12},g);m.textContent="\u2212";m.style.fill="#3B8BD4";
+var p=mk("text",{y:13,"text-anchor":"middle","font-size":12},g);p.textContent="+";p.style.fill="#D85A30";
+dip.push(g);base.push((rnd()*2-1)*180)}
+var G=[],L=[],V=[],AY=YT+60,AL=190,cols=[["E\u2080","var(--o)",70],["E\u1d62","var(--t)",145],["E","var(--fg)",220]];
+cols.forEach(function(c,i){var g=mk("g",{});G.push(g);
+var h=mk("text",{x:c[2],y:YT+34,"text-anchor":"middle","font-size":14,"font-weight":500},g);h.textContent=c[0];
+V.push(mk("text",{x:c[2],y:YT+49,"text-anchor":"middle","font-size":11},g));
+var ln=mk("line",{x1:c[2],x2:c[2],stroke:i==0?"#D85A30":i==1?"#1D9E75":"#888780","stroke-width":4,"marker-end":"url(#"+(i==0?"mo":i==1?"mt":"mk")+")",class:"fl"+(i==1?" up":"")},g);L.push(ln)});
+function callout(x,y,txt,sub){mk("line",{x1:x,y1:y,x2:x+16,y2:y,stroke:"var(--mut)","stroke-width":.8,"stroke-dasharray":"3 3"});
+var t=mk("text",{x:x+22,y:y+4,"font-size":12});t.textContent=txt;if(sub){var s=mk("text",{x:x+22,y:y+18,"font-size":11});s.style.fill="var(--mut)";s.textContent=sub}}
+callout(X1,YT-16,"+\u03c3 free charge on plate");
+callout(X1,YT+18,"\u2212\u03c3\u1d62 induced surface charge","bound to molecules");
+callout(X1,190,"Molecules line up with E","more for larger \u03ba");
+callout(X1,YB-8,"+\u03c3\u1d62 induced surface charge");
+callout(X1,YB+28,"\u2212\u03c3 free charge on plate");
+var cap=mk("text",{x:250,y:376,"text-anchor":"middle","font-size":12});cap.style.fill="var(--mut)";cap.textContent="Arrow lengths are to scale with each other. Values in MV/m.";
+function f(x,n){return x.toPrecision(n||3)}
+function upd(){
+var k=+K.value,E=+Ev.value*1e6,d=+D.value*1e-3,E0=k*E,Ei=E0-E,s=EPS*E0,si=s*(1-1/k),a=1-1/k,sc=AL/E0;
+kv.textContent=k.toFixed(1);ev.textContent=(+Ev.value).toFixed(1);dv.textContent=(+D.value).toFixed(1);
+var n=Math.round(a*N);bt.forEach(function(t,i){t.style.opacity=i<n?1:.12});bb.forEach(function(t,i){t.style.opacity=i<n?1:.12});
+dip.forEach(function(g,i){g.setAttribute("transform","translate("+g._c[0]+","+g._c[1]+") rotate("+(base[i]*(1-a))+")")});
+var v=[E0,Ei,E],len=[AL,Ei*sc,Math.max(E*sc,6)];
+L[0].setAttribute("y1",AY);L[0].setAttribute("y2",AY+len[0]);
+L[1].setAttribute("y1",AY+AL);L[1].setAttribute("y2",AY+AL-len[1]);
+L[2].setAttribute("y1",AY);L[2].setAttribute("y2",AY+len[2]);
+L[1].style.opacity=len[1]<3?0:1;
+v.forEach(function(x,i){V[i].textContent=f(x/1e6,2)});
+for(var i=0;i<3;i++)G[i].style.display=document.getElementById("t"+i).checked?"":"none";
+gM.style.display=document.getElementById("t3").checked?"":"none";
+document.getElementById("o").innerHTML=
+"<div><small>(a) Plate charge density \u03c3 = \u03b5\u2080\u03baE</small><b>"+f(s*1e6,3)+" \u03bcC/m\u00b2</b><small>= "+f(s/1e-5,2)+" \u00d7 10\u207b\u2075 C/m\u00b2</small></div>"+
+"<div><small>(b) Induced density \u03c3\u1d62 = \u03c3(1 \u2212 1/\u03ba)</small><b>"+f(si*1e6,3)+" \u03bcC/m\u00b2</b><small>= "+f(si/1e-5,2)+" \u00d7 10\u207b\u2075 C/m\u00b2</small></div>"+
+"<div><small>Induced / plate charge</small><b>"+f(a*100,3)+" %</b><small>= 1 \u2212 1/\u03ba</small></div>"+
+"<div><small>Voltage V = Ed</small><b>"+f(E*d/1e3,3)+" kV</b></div>"}
+var K=document.getElementById("k"),Ev=document.getElementById("e"),D=document.getElementById("d"),kv=document.getElementById("kv"),ev=document.getElementById("ev"),dv=document.getElementById("dv");
+document.querySelectorAll("input").forEach(function(x){x.addEventListener("input",upd);x.addEventListener("change",upd)});upd();
+</script></body></html>
